@@ -116,6 +116,10 @@ export const techdocsTranslationRef = createTranslationRef({
     },
     reader: {
       settings: 'Settings',
+      metadataMissing: {
+        message:
+          'Documentation metadata is missing. The site may have been built without the TechDocs CLI, which can prevent features like cache invalidation from working correctly. Rebuild and publish the docs using the TechDocs CLI.',
+      },
     },
   },
 });

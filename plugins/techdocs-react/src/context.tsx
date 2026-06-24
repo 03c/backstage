@@ -22,6 +22,7 @@ import {
   memo,
   ReactNode,
   useEffect,
+  useRef,
 } from 'react';
 import useAsync, { AsyncState } from 'react-use/esm/useAsync';
 import useAsyncRetry from 'react-use/esm/useAsyncRetry';
@@ -135,16 +136,31 @@ export const TechDocsReaderPageProvider = memo(
       defaultTechDocsReaderPageValue.shadowRoot,
     );
 
+    const metadataShadowRootRetryAttempted = useRef(false);
+
     useEffect(() => {
-      if (shadowRoot && !metadata.value && !metadata.loading) {
+      metadataShadowRootRetryAttempted.current = false;
+    }, [entityRef]);
+
+    useEffect(() => {
+      if (
+        shadowRoot &&
+        !metadata.value &&
+        !metadata.loading &&
+        !metadata.error &&
+        !metadataShadowRootRetryAttempted.current
+      ) {
+        metadataShadowRootRetryAttempted.current = true;
         metadata.retry();
       }
+      // metadata is intentionally omitted to avoid re-running when the async state object identity changes
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       metadata.value,
       metadata.loading,
+      metadata.error,
       shadowRoot,
       metadata.retry,
-      metadata,
     ]);
 
     const value: TechDocsReaderPageValue = {

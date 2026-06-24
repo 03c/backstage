@@ -175,4 +175,48 @@ describe('useTechDocsReaderPage', () => {
       });
     });
   });
+
+  it('should not repeatedly retry metadata fetch when shadow root is set and metadata fetch fails', async () => {
+    const metadataError = new Error('TechDocs metadata fetch failed');
+    techdocsApiMock.getTechDocsMetadata.mockRejectedValue(metadataError);
+
+    const { result } = renderHook(() => useTechDocsReaderPage(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.metadata.loading).toBe(false);
+      expect(result.current.metadata.error).toBe(metadataError);
+    });
+
+    expect(techdocsApiMock.getTechDocsMetadata).toHaveBeenCalledTimes(1);
+
+    const shadowRoot = mockShadowRoot();
+    await act(async () => result.current.setShadowRoot(shadowRoot));
+
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200));
+    });
+
+    expect(techdocsApiMock.getTechDocsMetadata).toHaveBeenCalledTimes(1);
+  });
+
+  it('should retry metadata fetch once when shadow root mounts before metadata is available', async () => {
+    techdocsApiMock.getTechDocsMetadata
+      .mockResolvedValueOnce(undefined as unknown as TechDocsMetadata)
+      .mockResolvedValueOnce(mockTechDocsMetadata);
+
+    const { result } = renderHook(() => useTechDocsReaderPage(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.metadata.loading).toBe(false);
+    });
+
+    const shadowRoot = mockShadowRoot();
+    await act(async () => result.current.setShadowRoot(shadowRoot));
+
+    await waitFor(() => {
+      expect(result.current.metadata.value).toMatchObject(mockTechDocsMetadata);
+    });
+
+    expect(techdocsApiMock.getTechDocsMetadata).toHaveBeenCalledTimes(2);
+  });
 });

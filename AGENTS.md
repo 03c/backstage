@@ -59,3 +59,14 @@ Never make changes to the release notes in `/docs/releases` unless explicitly as
 ## Repository Structure
 
 See `/docs/contribute/project-structure.md` for a detailed description of the repository structure.
+
+## Cursor Cloud specific instructions
+
+The environment already has Node (`22 || 24`) and Yarn `4.8.1` (via Corepack) available, and the startup update script runs `yarn install`. Standard commands are documented above in "Development Flow"; the notes below are non-obvious caveats only.
+
+- Running the app: `yarn start` launches both the frontend (`:3000`) and backend (`:7007`) together in a single process — there is no separate backend start step (the root `yarn start-backend` is a no-op that just prints a hint). After it boots, look for `Rspack compiled successfully` and `Listening on :7007` in the logs.
+- No external services needed by default: the example app uses an in-memory `better-sqlite3` database and the in-memory Lunr search engine, so Postgres/Redis/OpenSearch/Docker are NOT required to run or test locally. The optional `yarn start:docker` variant wires those up via `docker-compose.deps.yml`.
+- Auth: sign in with the built-in **Guest** provider (click "Enter" on the sign-in page) — no credentials or external OAuth setup is required for local development.
+- Expected benign startup warnings (not environment problems): catalog warnings for the example `petstore`/`petstore-webhook` placeholders and the `hello-world` API schema, and a `search` error for `explore tools 404` (the explore plugin backend isn't wired into the example backend). The app is fully functional despite these.
+- TechDocs (optional): local doc generation needs a Python virtualenv with `mkdocs-techdocs-core` (see `.devcontainer/setup.sh`). This is intentionally NOT part of the update script; the example app runs fine without it. On Ubuntu it also requires the `python3-venv` system package, which is a one-off install.
+- Backend API requests require auth — an unauthenticated `curl` to a `:7007` API returns `401`, which indicates the backend is up, not an error.

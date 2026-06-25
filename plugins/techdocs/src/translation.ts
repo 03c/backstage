@@ -118,7 +118,7 @@ export const techdocsTranslationRef = createTranslationRef({
       settings: 'Settings',
       metadataMissing: {
         message:
-          'Documentation metadata is missing. The site may have been built without the TechDocs CLI, which can prevent features like cache invalidation from working correctly. Rebuild and publish the docs using the TechDocs CLI.',
+          'Documentation metadata could not be loaded. This may occur if the documentation was built without the TechDocs CLI, which can prevent features like cache invalidation from working correctly. Try rebuilding and publishing the docs using the TechDocs CLI.',
       },
     },
   },

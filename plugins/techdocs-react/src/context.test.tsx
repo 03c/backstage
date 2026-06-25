@@ -192,10 +192,6 @@ describe('useTechDocsReaderPage', () => {
     const shadowRoot = mockShadowRoot();
     await act(async () => result.current.setShadowRoot(shadowRoot));
 
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
-    });
-
     expect(techdocsApiMock.getTechDocsMetadata).toHaveBeenCalledTimes(1);
   });
 
